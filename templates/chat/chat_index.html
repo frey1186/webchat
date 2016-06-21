@@ -5,14 +5,29 @@
     <!-- Main component for a primary marketing message or call to action -->
     <div class="">
         <div class="chat-box-toolbar col-md-1">
-          <ul class="nav">
+        <div class="chat-user-head">
+            <div class="text-center">
+                {% load chat_tags %}
+                <img class="user-head-img-display-left img-circle" src="/static/{{ request.user.userprofile.head_img |truncate_url }}"/>
+            </div>
+            <div class="text-center">{{ request.user.userprofile.name }}</div>
+        </div>
+
+
+          <ul class="nav text-center">
             <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">单聊</a></li>
             <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">群组</a></li>
           </ul>
         </div>
 
         <div class="chat-box-friends col-md-2">
-            <div class="chat-box-findfriends">find friends</div>
+            <div class="chat-box-findfriends">
+                搜索:
+                 <div class="form-group">
+                    <label class="sr-only" for="exampleInputEmail3"></label>
+                    <input type="" class="form-control" placeholder="Name">
+                  </div>
+            </div>
             <div class="chat-box-choosefriends">
                 <div class="tab-content">
 {#                    列举联系人#}
@@ -72,7 +87,7 @@
 
         <div class="chat-box-msg col-md-9">
             <div class="chat-box-msgtitle">
-                <div>title</div>
+                <div>请选择一个唠嗑对象</div>
             </div>
             <div class="chat-box-msgwindow">
 {#                    <div class="clearfix">#}
@@ -95,7 +110,9 @@
 {#                        </div>#}
 {#                    </div>#}
             </div>
-            <div class="chat-box-emoj"> emoj</div>
+            <div class="chat-box-emoj">
+                emoj
+            </div>
             <div class="chat-box-msgin">
                 <textarea></textarea>
             </div>
@@ -127,41 +144,81 @@ function SendMessages(){
     var chat_title_obj = $(".chat-box-msgtitle");
     var chat_window_obj = $(".chat-box-msgwindow");
     var chat_textarea_obj = $(".chat-box-msgin textarea");
-    var send_msgs = {
+
+
+    if(chat_textarea_obj.val().trim()){
+        if(chat_title_obj.attr("contact_id") == "#"){
+            var send_msgs_turing = {
+                "key":"0e16a96bb2077b8872edd9f2cc8ec28a",
+                "info":chat_textarea_obj.val()
+            };
+
+            $.ajax({
+                url:"http://www.tuling123.com/openapi/api",
+                type:'POST',
+                data:send_msgs_turing,
+                dataType:'JSON',
+                success: function(data,textStatus){
+                    console.log(data);
+                    //清空textin框
+                    chat_textarea_obj.val("");
+                    //显示消息到windows框中
+                    var msg_html = CreateMsgHtmlObject(
+                        "{{ request.user.userprofile.name }}",
+                        "/static/{{ request.user.userprofile.head_img|truncate_url }}",
+                        send_msgs_turing["info"]
+                    );
+                    var msg_html_back = CreateMsgHtmlObject(
+                        "图灵机器人",
+                        "/static/turing.png",
+                        data['text']
+                    );
+                    chat_window_obj.append(msg_html);
+                    chat_window_obj.append(msg_html_back);
+
+                    //始终让window滚动条在最下面
+                    chat_window_obj.scrollTop( chat_window_obj[0].scrollHeight );
+                },
+                error: function(data,textStatus){
+                    console.log(data);
+                }
+            });
+
+        }else{
+            var send_msgs = {
                 "from":"{{ request.user.userprofile.id }}",
                 "to":chat_title_obj.attr("contact_id"),
                 "contact_type":chat_title_obj.attr("contact_type"),
                 "contact_text":chat_textarea_obj.val(),
                 "msg_type":"text"
             };
+            $.post("{% url 'chat:message_handle' %}",
+                    {"msgs":JSON.stringify(send_msgs)},
+                function(callback){
+                    console.log(callback);
+                    //清空textin框
+                    chat_textarea_obj.val("");
+                    //显示消息到windows框中
+                    var msg_html = CreateMsgHtmlObject(
+                        "{{ request.user.userprofile.name }}",
+                        "/static/{{ request.user.userprofile.head_img|truncate_url }}",
+                        send_msgs["contact_text"]
+                    );
 
-    if(chat_textarea_obj.val().trim()){
+                    chat_window_obj.append(msg_html);
+                    //消息加入到MSG_LIST表中
+                    MSG_LIST.push(send_msgs);
+                    console.log("msg_List push a message in it.");
+
+                    //始终让window滚动条在最下面
+                    chat_window_obj.scrollTop( chat_window_obj[0].scrollHeight );
+            });
+        }
 
 
 
 
 
-        $.post("{% url 'chat:message_handle' %}",
-                {"msgs":JSON.stringify(send_msgs)},
-            function(callback){
-                console.log(callback);
-                //清空textin框
-                chat_textarea_obj.val("");
-                //显示消息到windows框中
-                var msg_html = CreateMsgHtmlObject(
-                    "{{ request.user.userprofile.name }}",
-                    "/static/{{ request.user.userprofile.head_img|truncate_url }}",
-                    send_msgs["contact_text"]
-                );
-
-                chat_window_obj.append(msg_html);
-                //消息加入到MSG_LIST表中
-                MSG_LIST.push(send_msgs);
-                console.log("msg_List push a message in it.");
-
-                //始终让window滚动条在最下面
-                chat_window_obj.scrollTop( chat_window_obj[0].scrollHeight );
-        });
     }
 }
 //end 发送消息

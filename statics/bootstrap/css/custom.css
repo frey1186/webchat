@@ -17,16 +17,26 @@
 
 .chat-box-toolbar{
     height: 560px;
-    border: red solid 1px;
+    border: gray solid 1px;
+    border-radius: 5px 0 0 5px;
+    padding: 50px 0;
+}
+.chat-user-head{
+    margin-bottom: 50px;
 }
 .chat-box-friends{
     height: 560px;
-    border: blue solid 1px;
+    border: gray solid 1px;
 }
 .chat-box-findfriends{
     height: 60px;
-    border-bottom: blue solid 1px;
+    /*border-bottom: blue solid 1px;*/
 }
+/*.chat-box-findfriends div{*/
+    /*padding-top: 10px;*/
+/*}*/
+
+
 .chat-box-choosefriends{
     height: 500px;
 
@@ -35,7 +45,8 @@
 
 .chat-box-msg{
     height: 560px;
-    border: green solid 1px;
+    border: gray solid 1px;
+    border-radius: 0 5px 5px 0;
 }
 /*---------- msg title --------------*/
 .chat-box-msgtitle{
@@ -81,6 +92,10 @@
 .user-head-img-display-window{
     width:40px;
     height: 40px;
+}
+.user-head-img-display-left{
+    width:60px;
+    height: 60px;
 }
 .each_msg_text{
     padding: 10px;
