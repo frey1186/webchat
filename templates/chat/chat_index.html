@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% load chat_tags %}
+{% block page-container %}
+
+    <!-- Main component for a primary marketing message or call to action -->
+    <div class="">
+        <div class="chat-box-toolbar col-md-1">
+          <ul class="nav">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">单聊</a></li>
+            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">群组</a></li>
+          </ul>
+        </div>
+
+        <div class="chat-box-friends col-md-2">
+            <div class="chat-box-findfriends">find friends</div>
+            <div class="chat-box-choosefriends">
+                <div class="tab-content">
+{#                    列举联系人#}
+                    <div role="tabpanel" class="tab-pane active" id="home">
+                        <ul class="list-group">
+                            <li class="list-group-item"
+                              contact_id="#"
+                              contact_type="turing"
+                              contact_name = "图灵机器人"
+                            >
+                                <span class="badge hide">0</span>
+                                <span>
+                                <img class="user-head-img-display img-circle" src="/static/turing.png"/>
+                                图灵机器人
+                            </span>
+                            </li>
+                        {% for friend in request.user.userprofile.friends.all %}
+                          <li class="list-group-item"
+                              contact_id="{{ friend.id }}"
+                              contact_type="single"
+                              contact_name = "{{ friend.name }}"
+                          >
+                            <span class="badge hide">0</span>
+                            <span>
+                                <img class="user-head-img-display img-circle" src="/static/{{ friend.head_img |truncate_url }}"/>
+                                {{ friend.name|truncatechars:5 }}
+                            </span>
+                          </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+{#                    列举群组#}
+                    <div role="tabpanel" class="tab-pane" id="profile">
+
+                        <ul class="list-group">
+                        {% for group in request.user.userprofile.belong_to_group.all %}
+                          <li class="list-group-item"
+                              contact_id="{{ group.id }}"
+                              contact_type="group"
+                              contact_name = "{{ group.name }}"
+                          >
+                            <span class="badge hide">0</span>
+                            <span>
+{#                                <img class="user-head-img-display img-circle" src="/static/{{ group.head_img |truncate_url }}"/>#}
+                                {{ group.name|truncatechars:5 }}
+                            </span>
+                          </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+
+        <div class="chat-box-msg col-md-9">
+            <div class="chat-box-msgtitle">
+                <div>title</div>
+            </div>
+            <div class="chat-box-msgwindow">
+{#                    <div class="clearfix">#}
+{#                        <div class="pull-left">#}
+{#                            <img src="user_head_img" />#}
+{#                        </div>#}
+{#                        <div class="pull-left">#}
+{#                            <div>别人</div>#}
+{#                            <div class="bg-info each_msg_text">别人发来的消息,......</div>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="clearfix">#}
+{#                        <div class="pull-right">#}
+{#                            <img src="user_head_img" />#}
+{#                        </div>#}
+{#                        <div class="pull-right">#}
+{#                            <div class="text-right">自己</div>#}
+{#                            <div class="bg-success each_msg_text">自己发送的消息,,,,each_msg_text</div>#}
+{#                        </div>#}
+{#                    </div>#}
+            </div>
+            <div class="chat-box-emoj"> emoj</div>
+            <div class="chat-box-msgin">
+                <textarea></textarea>
+            </div>
+        </div>
+
+    </div>
+
+
+{#    from_user,user_head_img,msg_content#}
+
+
+
+{% endblock %}
+
+
+
+
+{% block bottom-js %}
+<script>
+
+
+
+
+
+
+
+//发送消息
+function SendMessages(){
+    var chat_title_obj = $(".chat-box-msgtitle");
+    var chat_window_obj = $(".chat-box-msgwindow");
+    var chat_textarea_obj = $(".chat-box-msgin textarea");
+    var send_msgs = {
+                "from":"{{ request.user.userprofile.id }}",
+                "to":chat_title_obj.attr("contact_id"),
+                "contact_type":chat_title_obj.attr("contact_type"),
+                "contact_text":chat_textarea_obj.val(),
+                "msg_type":"text"
+            };
+
+    if(chat_textarea_obj.val().trim()){
+
+
+
+
+
+        $.post("{% url 'chat:message_handle' %}",
+                {"msgs":JSON.stringify(send_msgs)},
+            function(callback){
+                console.log(callback);
+                //清空textin框
+                chat_textarea_obj.val("");
+                //显示消息到windows框中
+                var msg_html = CreateMsgHtmlObject(
+                    "{{ request.user.userprofile.name }}",
+                    "/static/{{ request.user.userprofile.head_img|truncate_url }}",
+                    send_msgs["contact_text"]
+                );
+
+                chat_window_obj.append(msg_html);
+                //消息加入到MSG_LIST表中
+                MSG_LIST.push(send_msgs);
+                console.log("msg_List push a message in it.");
+
+                //始终让window滚动条在最下面
+                chat_window_obj.scrollTop( chat_window_obj[0].scrollHeight );
+        });
+    }
+}
+//end 发送消息
+
+//在msg window 上创建新的消息
+function CreateMsgHtmlObject(from_user,user_head_img,msg_content){
+    if(from_user == "{{ request.user.userprofile.name }}"){
+        var self_send_msg_html = '<div class="clearfix"><div class="pull-right"><img class="user-head-img-display-window img-thumbnail" src="'+
+            user_head_img +
+            '" /></div><div class="pull-right"><div class="text-right">'+
+            from_user +
+            '</div><div class="bg-success each_msg_text">'+
+            msg_content +
+            '</div></div></div>';
+        return self_send_msg_html
+    }else{
+        var others_send_msg_html = '<div class="clearfix"><div class="pull-left"><img class="user-head-img-display-window img-thumbnail" src="'+
+            user_head_img +
+            '" /></div><div class="pull-left"><div class="">'+
+            from_user +
+            '</div><div class="bg-info each_msg_text">'+
+            msg_content +
+            '</div></div></div>';
+        return others_send_msg_html
+    }
+
+}
+//end--在msg window 上创建新的消息
+
+//获取消息
+function GetMessages(){
+    //get 从服务器得到数据
+    $.get("{% url 'chat:message_handle' %}",
+          function(callback){
+              var msg_obj_list = JSON.parse(callback);
+              console.log(msg_obj_list);
+
+              //如果获取到的消息列表不是0,就增加到本地消息列表中
+              if(msg_obj_list.length !=0){
+
+                  for(var i in msg_obj_list ){
+                      var msg = msg_obj_list[i];
+{#                      if(msg['contact_type']=='single'){#}
+                            var msg_from_contact_id = msg['from'];
+                            var contact_ele = $(".list-group li[contact_type='"+ msg['contact_type'] +"']").filter("li[contact_id='"+ msg_from_contact_id +"']")[0];
+                            var current_new_msg_num = $(contact_ele).find(".badge").text();
+{#                            console.log("msg['from']-->"+msg['from']);#}
+{#                            console.log("msg['contact_type']-->"+msg['contact_type']);#}
+{#                            console.log("msg_from_contact_id-->"+msg_from_contact_id);#}
+{#                            console.log("contact_ele-->"+contact_ele);#}
+{#                            console.log("current_new_msg_num-->"+current_new_msg_num);#}
+                            $(contact_ele).find(".badge").removeClass("hide");
+                            $(contact_ele).find(".badge").text(parseInt(current_new_msg_num)+1);
+{#                      }#}
+
+                  }
+
+
+
+
+                  MSG_LIST = MSG_LIST.concat(msg_obj_list);
+                  //现将已知的消息打印到页面上去
+                  $(".chat-box-msgwindow").html("");//先清空消息
+                  console.log("---->before print msg");
+                  PrintMsgList($(".list-group-item-success").attr("contact_id"));
+                  console.log("---->end print msg");
+              }
+
+              //始终让window滚动条在最下面
+              $('.chat-box-msgwindow').scrollTop( $('.chat-box-msgwindow')[0].scrollHeight );
+              //递归获取消息
+              GetMessages();
+        });
+    //endget
+}
+//END 获取消息
+
+    //get GetUserNameFromID
+    function GetUserNameFromID(user_id){
+        var user_name = "----";
+        $("li.list-group-item").each(function () {
+            if($(this).attr("contact_type")=="single" && $(this).attr("contact_id")==user_id){
+                user_name=$(this).attr("contact_name");
+                return false
+            }else {
+                return true
+            }
+        });
+        if("{{ request.user.userprofile.id }}" == user_id ){
+            user_name="{{ request.user.userprofile.name }}";
+        }
+        return user_name;
+    }
+
+    //end GetUserNameFromID
+
+
+    //从 MSG_LIST 显示相应的消息到页面上
+    function PrintMsgList(user_id){
+        console.log(MSG_LIST);
+        if(MSG_LIST.length !=0){
+            for(var i in MSG_LIST){
+                msg_obj = MSG_LIST[i];
+                //console.log("for looping");
+                //console.log(msg_obj["to"]);
+                //console.log(user_id);
+                if( msg_obj["to"] == user_id || msg_obj["from"] == user_id){
+                    console.log("------->ok.....");
+
+                    $(".chat-box-msgwindow").append(
+                            CreateMsgHtmlObject(
+                                    GetUserNameFromID(msg_obj["from"]),
+                                    $('.list-group-item-success span img').attr('src'), //等会写
+                                    msg_obj["contact_text"]
+                            )
+                    );
+                }
+
+
+
+
+            }
+        }else {console.log("msg_list is null.")}
+    }
+    //end 从 MSG_LIST 显示相应的消息到页面上
+
+
+
+
+{#-----------------------doc ready ------------------#}
+$(document).ready(function () {
+
+    MSG_LIST = [];
+    GetMessages();
+
+    //csrf 处理
+    // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    //end csrf
+
+
+
+
+
+
+    //选择朋友,将被选择到的friends的属性都赋值给title
+    $('.chat-box-choosefriends .list-group-item').click(function(){
+        //add Class to click item
+        $('.chat-box-choosefriends .list-group-item').removeClass("list-group-item-success");
+        $(this).addClass("list-group-item-success");
+        //change msg title
+        var msg_title = $(this).attr('contact_name');
+        $('.chat-box-msgtitle div').text(msg_title);
+        //赋值给title
+        $('.chat-box-msgtitle').attr("contact_id",$(this).attr('contact_id')).
+                attr("contact_type",$(this).attr('contact_type')).
+                attr("contact_name",$(this).attr('contact_name'));
+
+        //显示给这个人的消息到windows框中
+        $(".chat-box-msgwindow").html("");//先清空消息
+        console.log("---->before print msg");
+        PrintMsgList($(this).attr('contact_id'));
+        console.log("---->end print msg");
+
+        //清空badge的数字
+        $($(this).children()[0]).addClass('hide').text("0");
+    });
+
+
+
+    //监控回车键,发送内容
+    $(".chat-box-msgin textarea").keypress(function( event ) {
+              if ( event.which == 13 ) {
+                  SendMessages();
+              }
+        });
+
+});
+
+
+</script>
+{% endblock %}

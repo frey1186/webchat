@@ -1,0 +1,88 @@
+
+.hide{
+    display: none;
+}
+/*<div class="jumbotron">*/
+          /*<div class="chat-box-toolbar">toolbar</div>*/
+          /*<div class="chat-box-friends">*/
+              /*<div class="chat-box-findfriends">find friends</div>*/
+              /*<div class="chat-box-choosefriends">choose friends</div>*/
+          /*</div>*/
+          /*<div class="chat-box-msg">*/
+              /*<div class="chat-box-msgtitle"> msg title</div>*/
+              /*<div class="chat-box-msgwindow"> msg windows</div>*/
+              /*<div class="chat-box-emoj"> emoj</div>*/
+              /*<div class="chat-box-msgin"> text in </div>*/
+          /*</div>*/
+
+.chat-box-toolbar{
+    height: 560px;
+    border: red solid 1px;
+}
+.chat-box-friends{
+    height: 560px;
+    border: blue solid 1px;
+}
+.chat-box-findfriends{
+    height: 60px;
+    border-bottom: blue solid 1px;
+}
+.chat-box-choosefriends{
+    height: 500px;
+
+}
+
+
+.chat-box-msg{
+    height: 560px;
+    border: green solid 1px;
+}
+/*---------- msg title --------------*/
+.chat-box-msgtitle{
+    height: 60px;
+    border-bottom: green solid 1px;
+}
+.chat-box-msgtitle div{
+    line-height: 60px;
+    font-size: 40px;
+}
+
+/*------------ msg windows --------------*/
+.chat-box-msgwindow{
+    height: 380px;
+    border-bottom: green solid 1px;
+    overflow-y: scroll;
+}
+
+
+/*------------ emoj --------------*/
+.chat-box-emoj{
+    height: 30px;
+    border-bottom: green solid 1px;
+}
+
+/*------------ msg input textarea --------------*/
+.chat-box-msgin{
+    height: 90px;
+}
+.chat-box-msgin textarea{
+    height: 86px;
+    border: none;
+    width:100%;
+}
+
+
+
+/*------------ other --------------*/
+.user-head-img-display{
+    width:20px;
+    height: 20px;
+}
+.user-head-img-display-window{
+    width:40px;
+    height: 40px;
+}
+.each_msg_text{
+    padding: 10px;
+    border-radius: 5px;
+}

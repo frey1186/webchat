@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+
+{% block page-container %}
+    <div class="row login-form">
+
+    <ul class="nav nav-tabs">
+      <li role="presentation" class=""><a href="#" id="login-a">登陆</a></li>
+      <li role="presentation" class=""><a href="#" id="register-a">注册</a></li>
+    </ul>
+        {% if login_err %}
+            <div style="color: red;line-height: 40px;" class="text-center">ERROR:{{ login_err }}</div>
+        {% endif %}
+    <form class="form-horizontal" action="" method="post" id="login-form">{% csrf_token %}
+
+          <div class="form-group">
+        <label for="inputEmail3" class="col-sm-3 control-label">Username</label>
+        <div class="col-sm-8">
+          <input  class="form-control" name="username">
+        </div>
+      </div>
+          <div class="form-group">
+            <label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-8">
+              <input type="password" class="form-control" name="password">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+              <button type="submit" class="btn btn-default">Sign in</button>
+            </div>
+          </div>
+
+
+    </form>
+    <form class="form-horizontal hide" action="" method="post" id="register-form">{% csrf_token %}
+
+          <div class="form-group">
+        <label for="inputEmail3" class="col-sm-3 control-label">Username</label>
+        <div class="col-sm-8">
+          <input  class="form-control" name="username">
+        </div>
+      </div>
+          <div class="form-group">
+            <label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-8">
+              <input type="password" class="form-control" name="password">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPassword3" class="col-sm-3 control-label">Password Conferm</label>
+            <div class="col-sm-8">
+              <input type="password" class="form-control" name="password">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-6">
+              <button type="submit" class="btn btn-default">Register</button>
+            </div>
+          </div>
+
+
+    </form>
+    </div>
+
+
+{% endblock %}
+
+{% block bottom-js %}
+    <script>
+        $("#login-a").click(function () {
+            $(this).addClass("active");
+            $("#register-a").removeClass("active");
+            $("#login-form").removeClass("hide");
+            $("#register-form").addClass("hide")
+        });
+        $("#register-a").click(function () {
+            $(this).addClass("active");
+            $("#login-a").removeClass("active");
+            $("#login-form").addClass("hide");
+            $("#register-form").removeClass("hide")
+        })
+    </script>
+{% endblock %}
